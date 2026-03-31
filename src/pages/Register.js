@@ -12,6 +12,7 @@ function Register() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [verificationUrl, setVerificationUrl] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -35,14 +36,21 @@ function Register() {
     setLoading(true);
 
     try {
-      await axios.post(`${apiBase}/register`, {
+      const response = await axios.post(`${apiBase}/register`, {
         username: formData.username,
         email: formData.email,
         password: formData.password,
       });
 
-      alert('Registration successful! Please check your email to verify your account.');
-      navigate('/login');
+      const backendVerificationUrl = response.data?.data?.verificationUrl;
+      if (backendVerificationUrl) {
+        const token = new URL(backendVerificationUrl).searchParams.get('token');
+        if (token) {
+          setVerificationUrl(`${window.location.origin}/verify-email?token=${encodeURIComponent(token)}`);
+        }
+      }
+
+      alert('Registration successful! Use the button to verify your account.');
     } catch (err) {
       const apiError = err.response?.data?.message || err.response?.data?.error;
       setError(apiError || 'Registration failed. Please try again.');
@@ -132,6 +140,15 @@ function Register() {
                 {loading ? 'Creating Account...' : 'Register'}
               </button>
             </form>
+            {verificationUrl && (
+              <div className="mb-3 text-center">
+                <p className="text-success">Your account is registered. Click below to verify:</p>
+                <a href={verificationUrl} className="btn btn-success w-100 btn-custom">
+                  Verify Email
+                </a>
+              </div>
+            )}
+
             <p className="mt-3 text-center">
               Already have an account? <Link to="/login">Login here</Link>
             </p>
