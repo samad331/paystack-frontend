@@ -23,7 +23,7 @@ function EmailVerify() {
         const hostname = window.location.hostname || 'localhost';
         const fallbackApiBase = `${protocol}//${hostname}:3005`;
         const apiBase = process.env.REACT_APP_BASE_URL || fallbackApiBase;
-        const response = await axios.get(`${apiBase}/verify?token=${encodeURIComponent(token)}`);
+        const response = await axios.get(`${apiBase}/verify/${encodeURIComponent(token)}`);
 
         if (response.data?.status === 'successful') {
           setStatus('success');
