@@ -43,8 +43,10 @@ function Register() {
 
       const backendVerificationUrl = response.data?.data?.verificationUrl;
       if (backendVerificationUrl) {
-        const token = new URL(backendVerificationUrl).searchParams.get('token');
-        if (token) {
+        // Extract token from the new path format: /verify/:token
+        const urlParts = backendVerificationUrl.split('/verify/');
+        if (urlParts.length === 2) {
+          const token = urlParts[1];
           const frontendUrl = `${window.location.origin}/verify-email?token=${encodeURIComponent(token)}`;
           navigate('/verify-account', { state: { verificationUrl: frontendUrl } });
           return;
