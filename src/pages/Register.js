@@ -12,7 +12,6 @@ function Register() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [verificationUrl, setVerificationUrl] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -26,7 +25,7 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const apiBase = process.env.REACT_APP_BASE_URL;
+    const apiBase = process.env.REACT_APP_BASE_URL || 'http://localhost:3005';
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -46,13 +45,18 @@ function Register() {
       if (backendVerificationUrl) {
         const token = new URL(backendVerificationUrl).searchParams.get('token');
         if (token) {
-          setVerificationUrl(`${window.location.origin}/verify-email?token=${encodeURIComponent(token)}`);
+          const frontendUrl = `${window.location.origin}/verify-email?token=${encodeURIComponent(token)}`;
+          navigate('/verify-account', { state: { verificationUrl: frontendUrl } });
+          return;
         }
       }
 
-      alert('Registration successful! Use the button to verify your account.');
+      // Fallback if no verification URL
+      alert('Registration successful! Please check your email to verify your account.');
+      navigate('/login');
     } catch (err) {
-      const apiError = err.response?.data?.message || err.response?.data?.error;
+      console.error('Register API error:', err.response?.data || err.message);
+      const apiError = err.response?.data?.message || err.response?.data?.error || err.message;
       setError(apiError || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
@@ -140,15 +144,6 @@ function Register() {
                 {loading ? 'Creating Account...' : 'Register'}
               </button>
             </form>
-            {verificationUrl && (
-              <div className="mb-3 text-center">
-                <p className="text-success">Your account is registered. Click below to verify:</p>
-                <a href={verificationUrl} className="btn btn-success w-100 btn-custom">
-                  Verify Email
-                </a>
-              </div>
-            )}
-
             <p className="mt-3 text-center">
               Already have an account? <Link to="/login">Login here</Link>
             </p>
