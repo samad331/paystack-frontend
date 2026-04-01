@@ -35,6 +35,11 @@ function ReceivedTransfers() {
     }
   };
 
+  const normalizeStatus = (status) => (status || '').toString().toLowerCase();
+  const isSuccessStatus = (status) => ['completed', 'success', 'successful'].includes(normalizeStatus(status));
+  const isPendingStatus = (status) => ['pending', 'processing'].includes(normalizeStatus(status));
+  const isFailedStatus = (status) => ['failed', 'error'].includes(normalizeStatus(status));
+
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString('en-US', options);
@@ -111,8 +116,16 @@ function ReceivedTransfers() {
                             <strong className="text-success">₦{transfer.amount.toLocaleString()}</strong>
                           </td>
                           <td>
-                            <span className={`badge bg-${transfer.status === 'completed' ? 'success' : 'warning'}`}>
-                              {transfer.status.charAt(0).toUpperCase() + transfer.status.slice(1)}
+                            <span className={`badge bg-${
+                              isSuccessStatus(transfer.status)
+                                ? 'success'
+                                : isFailedStatus(transfer.status)
+                                ? 'danger'
+                                : isPendingStatus(transfer.status)
+                                ? 'warning'
+                                : 'secondary'
+                            }`}>
+                              {transfer.status?.charAt(0).toUpperCase() + transfer.status?.slice(1)}
                             </span>
                           </td>
                         </tr>

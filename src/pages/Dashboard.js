@@ -40,6 +40,11 @@ function Dashboard() {
     }
   };
 
+  const normalizeStatus = (status) => (status || '').toString().toLowerCase();
+  const isSuccessStatus = (status) => ['completed', 'success', 'successful'].includes(normalizeStatus(status));
+  const isPendingStatus = (status) => ['pending', 'processing'].includes(normalizeStatus(status));
+  const isFailedStatus = (status) => ['failed', 'error'].includes(normalizeStatus(status));
+
   const fetchBalance = async (token) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/paystack/balance`, {
@@ -91,13 +96,13 @@ function Dashboard() {
           <div className="col-md-3">
             <div className="stats-card">
               <h6>Successful</h6>
-              <h3>{transactions.filter((t) => t.status === 'completed' || t.status === 'success').length}</h3>
+              <h3>{transactions.filter((t) => isSuccessStatus(t.status)).length}</h3>
             </div>
           </div>
           <div className="col-md-3">
             <div className="stats-card">
               <h6>Pending</h6>
-              <h3>{transactions.filter((t) => t.status === 'pending').length}</h3>
+              <h3>{transactions.filter((t) => isPendingStatus(t.status)).length}</h3>
             </div>
           </div>
         </div>
@@ -123,14 +128,16 @@ function Dashboard() {
                       <td>
                         <span
                           className={`badge bg-${
-                            transaction.status === 'completed' || transaction.status === 'success'
+                            isSuccessStatus(transaction.status)
                               ? 'success'
-                              : transaction.status === 'failed'
+                              : isFailedStatus(transaction.status)
                               ? 'danger'
-                              : 'warning'
+                              : isPendingStatus(transaction.status)
+                              ? 'warning'
+                              : 'secondary'
                           }`}
                         >
-                          {transaction.status}
+                          {transaction.status?.charAt(0).toUpperCase() + transaction.status?.slice(1)}
                         </span>
                       </td>
                       <td>{new Date(transaction.created_at).toLocaleDateString()}</td>
