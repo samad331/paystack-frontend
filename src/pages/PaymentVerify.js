@@ -10,16 +10,20 @@ function PaymentVerify() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const reference = searchParams.get('reference');
-    
+    const reference =
+      searchParams.get('reference') ||
+      searchParams.get('trxref') ||
+      searchParams.get('ref');
+
     if (!reference) {
       setStatus('error');
-      setMessage('No payment reference provided');
-      return;
+      setMessage('No payment reference provided. Redirecting to dashboard...');
+      const timeout = setTimeout(() => navigate('/dashboard'), 3000);
+      return () => clearTimeout(timeout);
     }
 
     verifyPayment(reference);
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const verifyPayment = async (reference) => {
     try {

@@ -35,7 +35,7 @@ function ReceivedTransfers() {
     }
   };
 
-  const normalizeStatus = (status) => (status || '').toString().toLowerCase();
+  const normalizeStatus = (status) => (status || '').toString().trim().toLowerCase();
   const isSuccessStatus = (status) => ['completed', 'success', 'successful'].includes(normalizeStatus(status));
   const isPendingStatus = (status) => ['pending', 'processing'].includes(normalizeStatus(status));
   const isFailedStatus = (status) => ['failed', 'error'].includes(normalizeStatus(status));
